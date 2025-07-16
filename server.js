@@ -20,14 +20,38 @@ const server = http.createServer((req, res) => {
     }
 
     else if (parsedUrl.pathname === '/time' && req.method === 'GET') {
-        // const name = parsedUrl.query.name || 'Guest';
-        // const role = parsedUrl.query.role || 'Visitor';
         const date = new Date();
 
         const datetime = { date };
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(datetime));
+    }
+
+    else if (parsedUrl.pathname === '/user' && req.method === 'POST') {
+        let body = '';
+
+        // Step 1: Collect data
+        req.on('data', chunk => {
+            body += chunk.toString(); // Convert Buffer to string
+        });
+
+        // Step 2: When complete, parse and respond
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body); // Convert JSON string to object
+                const { name, role } = data;
+
+                res.writeHead(201, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    message: 'User created',
+                    user: { name, role }
+                }));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Invalid JSON' }));
+            }
+        });
     }
 
     else {
