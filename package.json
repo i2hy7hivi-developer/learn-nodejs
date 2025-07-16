@@ -16,5 +16,8 @@
     "url": "https://github.com/i2hy7hivi-developer/learn-nodejs/issues"
   },
   "homepage": "https://github.com/i2hy7hivi-developer/learn-nodejs#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
 }

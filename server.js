@@ -1,65 +1,47 @@
-const http = require('http');
-const url = require('url');
+const express = require('express');
 
-const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
+const app = express();
 
-    if (parsedUrl.pathname === '/' && req.method === 'GET') {
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('Welcome to Node.js server!');
-    }
+app.use(express.json()); // Middleware to parse JSON bodies
 
-    else if (parsedUrl.pathname === '/user' && req.method === 'GET') {
-        const name = parsedUrl.query.name || 'Guest';
-        const role = parsedUrl.query.role || 'Visitor';
-
-        const user = { name, role };
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(user));
-    }
-
-    else if (parsedUrl.pathname === '/time' && req.method === 'GET') {
-        const date = new Date();
-
-        const datetime = { date };
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(datetime));
-    }
-
-    else if (parsedUrl.pathname === '/user' && req.method === 'POST') {
-        let body = '';
-
-        // Step 1: Collect data
-        req.on('data', chunk => {
-            body += chunk.toString(); // Convert Buffer to string
-        });
-
-        // Step 2: When complete, parse and respond
-        req.on('end', () => {
-            try {
-                const data = JSON.parse(body); // Convert JSON string to object
-                const { name, role } = data;
-
-                res.writeHead(201, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({
-                    message: 'User created',
-                    user: { name, role }
-                }));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Invalid JSON' }));
-            }
-        });
-    }
-
-    else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('Route not found');
-    }
+app.get('/', (req, res) => {
+    res.status(200).send('Welcome to Node.js server!');
 });
 
-server.listen(9000, () => {
-    console.log('Server running at http://localhost:9000');
+app.get('/user', (req, res) => {
+    const name = req.query.name || 'Guest';
+    const role = req.query.role || 'Visitor';
+
+    const user = { name, role };
+
+    res.status(200).json(user);
+});
+
+app.get('/time', (req, res) => {
+    const date = new Date();
+
+    const datetime = { date };
+
+    res.status(200).json(datetime);
+});
+
+app.post('/user', (req, res) => {
+    const { name, role } = req.body;
+
+    if (!name || !role) {
+        return res.status(400).json({ error: 'Name and role are required' });
+    }
+
+    res.status(201).json({
+        message: 'User created',
+        user: { name, role }
+    });
+});
+
+app.use((req, res) => {
+    res.status(404).send('Route not found');
+});
+
+app.listen(9000, () => {
+    console.log('Server is running on http://localhost:9000');
 });
