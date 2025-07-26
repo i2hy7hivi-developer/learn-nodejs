@@ -14,6 +14,9 @@ const app = express();
 
 app.use(express.json()); // Middleware to parse JSON bodies
 
+const authRoutes = require('./routes/auth');
+app.use('/auth', authRoutes);
+
 const userRoutes = require('./routes/user');
 app.use('/user', userRoutes);
 
