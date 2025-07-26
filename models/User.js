@@ -10,6 +10,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         enum: ['Admin', 'User', 'Manager'],
         required: true
+    },
+    deleted_at: {
+        type: Date,
+        default: null
     }
 }, { timestamps: true });
 
