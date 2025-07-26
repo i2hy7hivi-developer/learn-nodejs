@@ -1,3 +1,5 @@
+const { userSchema } = require('../validators/userValidator');
+
 exports.getUser = (req, res) => {
     const name = req.query.name || 'Guest';
     const role = req.query.role || 'Visitor';
@@ -8,14 +10,16 @@ exports.getUser = (req, res) => {
 }
 
 exports.createUser = (req, res) => {
-    const { name, role } = req.body;
+    const { error, value } = userSchema.validate(req.body);
 
-    if (!name || !role) {
-        return res.status(400).json({ error: 'Name and role are required' });
+    if (error) {
+        return res.status(422).json({ error: error.details[0].message });
     }
 
+    const { name, role } = value;
+
     res.status(201).json({
-        message: 'User created',
+        message: 'User created successfully',
         user: { name, role }
     });
-}
+};

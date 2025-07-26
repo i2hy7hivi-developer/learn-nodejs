@@ -18,6 +18,7 @@
   "homepage": "https://github.com/i2hy7hivi-developer/learn-nodejs#readme",
   "description": "",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "joi": "^17.13.3"
   }
 }
