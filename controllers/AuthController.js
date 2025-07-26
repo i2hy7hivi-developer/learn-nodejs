@@ -1,7 +1,40 @@
-const User = require('../models/User');
 const bcrypt = require('bcrypt');
-const { registerSchema } = require('../validators/authValidator');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const { loginSchema, registerSchema } = require('../validators/authValidator');
 const { successResponse, errorResponse } = require('../utils/response');
+
+exports.login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Validate user input
+        const { error } = loginSchema.validate({ email, password });
+        if (error) {
+            return errorResponse(res, 422, error.details[0].message);
+        }
+
+        // Check if user exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return errorResponse(res, 401, 'Invalid email or password');
+        }
+
+        // Check password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return errorResponse(res, 401, 'Invalid email or password');
+        }
+
+        // Generate JWT
+        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Return success response
+        return successResponse(res, 200, 'Login successful', { token });
+    } catch (err) {
+        return errorResponse(res, 500, 'Internal server error', null, { error: err.message });
+    }
+};
 
 exports.register = async (req, res) => {
     try {
